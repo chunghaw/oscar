@@ -1,5 +1,7 @@
 # CLAUDE.md — Goldvale
 
+> **New session?** Read **`AGENT_HANDOFF.md`** for the current state, decision history, and the exact next step — then this file, `docs/BUILD_PLAN.md`, and `HANDOFF.md`.
+
 Goldvale is a calm daily companion + home-rehab tracker for owners of **senior or chronically-ill dogs and cats**. Built for the **H0 hackathon** ("Hack the Zero Stack with Vercel v0 + AWS Databases"), **Monetizable B2C** track. Submission deadline **2026-06-29 17:00 PDT**.
 
 ## North-star
