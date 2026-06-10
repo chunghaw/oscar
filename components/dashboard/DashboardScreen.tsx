@@ -163,7 +163,7 @@ function PatternCard({ pattern, href }: { pattern: PatternMemory; href: string }
   );
 }
 
-function RecoveryCard({ phases, protocolLabel }: { phases: RecoveryPhase[]; protocolLabel: string }) {
+function RecoveryCard({ phases, protocolLabel, exercisesHref }: { phases: RecoveryPhase[]; protocolLabel: string; exercisesHref: string }) {
   return (
     <Card>
       <SectionHead icon={Ico.cal({ s: 17, c: A.plum.c })} accent={A.plum} title="Recovery plan" hint={protocolLabel} />
@@ -251,6 +251,29 @@ function RecoveryCard({ phases, protocolLabel }: { phases: RecoveryPhase[]; prot
           );
         })}
       </div>
+      <Link
+        href={exercisesHref}
+        className="gv-press"
+        style={{
+          width: "100%",
+          marginTop: 14,
+          padding: "11px",
+          borderRadius: 12,
+          cursor: "pointer",
+          border: `1px solid ${A.plum.c}`,
+          background: "var(--plum-soft)",
+          color: "#5a4d70",
+          fontSize: 13.5,
+          fontWeight: 650,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 6,
+          textDecoration: "none",
+        }}
+      >
+        Log today&rsquo;s rehab {Ico.chevR({ s: 15, c: "#5a4d70" })}
+      </Link>
     </Card>
   );
 }
@@ -326,7 +349,7 @@ export function DashboardScreen({ header, view }: { header: PetHeader; view: Das
         <QolWeekCard qol={view.qol} />
         {view.progression.fires && <ProgressionCard nudge={view.progression} briefHref={briefHref} />}
         <PatternCard pattern={view.pattern} href={recallHref} />
-        <RecoveryCard phases={view.recovery} protocolLabel={view.protocolLabel} />
+        <RecoveryCard phases={view.recovery} protocolLabel={view.protocolLabel} exercisesHref={`/pets/${header.id}/exercises`} />
         <VetBriefCard header={header} briefCount={view.briefCount} href={briefHref} />
         <VetLine />
         <div style={{ height: 6 }} />

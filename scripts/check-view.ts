@@ -17,6 +17,10 @@ async function main() {
   console.log("BRIEF meds :", brief.meds.map((m) => `${m.name} ${m.adherence}`).join(" | "));
   console.log("CHECKIN ex :", checkin.exercises.map((e) => `${e.name} ${e.dose}`).join(" | "));
   console.log("CHECKIN dt :", checkin.dateLabel, "· #" + checkin.checkinNumber);
+  const et = v.exerciseTrack;
+  console.log("EXERCISE   :", "gated", et.gated, "|", et.exercises.map((e) => `${e.name} ${e.fitt}`).join(", "));
+  console.log("EX progress:", `${et.adherencePct}% ${et.adherenceDays}`, "| dots", et.cleanDots.map((d) => (d ? "●" : "○")).join(""), "| nudge fires", et.nudge.fires);
+  console.log("EX flags   :", et.redFlags.map((f) => f.label).join(" · "));
   process.exit(0);
 }
 main().catch((e) => { console.error(e); process.exit(1); });

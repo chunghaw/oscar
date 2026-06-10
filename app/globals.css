@@ -31,6 +31,7 @@
   --plum:  #7d6b96;  --plum-soft:  rgba(125, 107, 150, 0.12);
   --clay:  #b3654a;  --clay-soft:  rgba(179, 101, 74, 0.12);  --clay-ink: #97492f;
   --neutral-soft: rgba(104, 112, 105, 0.12);
+  --danger-soft: rgba(192, 73, 43, 0.12);
 
   --gv-ease: cubic-bezier(.2, .7, .3, 1);
 }

@@ -202,5 +202,37 @@ export function buildOscarView(): PetView {
       windowDays: 28,
       band,
     },
+
+    exerciseTrack: {
+      gated: false,
+      prescriberName: "Dr. Okafor",
+      exercises: [
+        { id: "sit_to_stand", name: "Sit-to-stand", fitt: "3 × 5", planned: 15, active: true },
+        { id: "weight_shift", name: "Weight shifts", fitt: "2 × 8", planned: 16, active: true },
+        { id: "cookie_stretch", name: "Cookie (lateral-flexion) stretch", fitt: "1 × 5", planned: 5, active: true },
+      ],
+      adherencePct: 100,
+      adherenceDays: "3 of 7 days",
+      cleanDots: [true, true, true, true, true, true],
+      history: [0, 3, 0, 0, 3, 0, 0, 3, 0, 0, 3, 0, 0, 3],
+      nudge: {
+        fires: nudgeFires,
+        cleanSessions: DEFAULT_PROGRESSION.minCleanSessions,
+        spanDays: SPAN_DAYS,
+        headline: `Oscar has handled this dose well for ${SPAN_DAYS} days.`,
+        question: safe(
+          "That can be a sign he's ready for a little more — but it's your vet's call, never ours. Want to raise it with Dr. Okafor?",
+        ),
+      },
+      redFlags: [
+        { label: "Sudden lameness after a period of improvement", guide: "Contact your vet now." },
+        { label: "Swelling, heat, or discharge/odor at the incision", guide: "Contact your vet now." },
+      ],
+      modifications: [
+        { title: "Non-slip mats / rugs", detail: "Traction reduces slips and fall risk on hard floors." },
+        { title: "Ramps & steps (no jumping)", detail: "Avoids high-impact jumps onto/off furniture or into the car." },
+        { title: "Raised food & water bowls", detail: "Reduces neck and joint strain while eating." },
+      ],
+    },
   };
 }

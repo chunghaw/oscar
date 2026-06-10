@@ -12,13 +12,13 @@ import { getDb } from "@/lib/db/client";
 import {
   pets, exercisePlans, planItems, exercises as exercisesTbl, protocolInstances,
   protocolPhases, dailyCheckins, mobilityScoreEvents, exerciseSessionEvents,
-  medicationEvents,
+  medicationEvents, redFlagRules, modificationTypes,
 } from "@/lib/db/schema";
 import { bandFor, changeDirection, crossedMcid, GENPUP_M } from "@/lib/domain/mobility";
-import { DEFAULT_PROGRESSION, isCleanSession, shouldNudgeProgression, type Session } from "@/lib/domain/progression";
+import { DEFAULT_PROGRESSION, isCleanSession, shouldNudgeProgression, type Session, type Tolerance } from "@/lib/domain/progression";
 import { assertNonClinical } from "@/lib/domain/guardrails";
 import { embedText } from "@/lib/ai/bedrock";
-import type { PetView, PatternMemory, RecoveryPhase } from "./view";
+import type { PetView, PatternMemory, ProgressionNudge, RecoveryPhase, ExerciseTrackView } from "./view";
 
 /** A past journal day surfaced by pgvector kNN (cosine) — semantic, not keyword. */
 export interface JournalAnalogue {
@@ -88,6 +88,7 @@ export async function getPetViewFromDb(id: string): Promise<PetView | null> {
         name: exercisesTbl.displayName,
         sets: planItems.targetSets,
         reps: planItems.targetReps,
+        active: exercisesTbl.isActiveExercise,
       }).from(planItems)
         .innerJoin(exercisesTbl, eq(exercisesTbl.id, planItems.exerciseId))
         .where(eq(planItems.planId, plan.id))
@@ -95,6 +96,13 @@ export async function getPetViewFromDb(id: string): Promise<PetView | null> {
 
   const [protocol] = await db.select().from(protocolInstances)
     .where(eq(protocolInstances.petId, id)).orderBy(desc(protocolInstances.onsetDate)).limit(1);
+
+  const redFlags = protocol
+    ? await db.select({ label: redFlagRules.label, guide: redFlagRules.guidance })
+        .from(redFlagRules).where(eq(redFlagRules.templateId, protocol.templateId)).limit(3)
+    : [];
+  const mods = await db.select({ title: modificationTypes.displayName, detail: modificationTypes.rationale })
+    .from(modificationTypes).limit(3);
 
   // ── time-series reads ───────────────────────────────────────────────────────
   const mobilityRows = await db.select().from(mobilityScoreEvents)
@@ -113,6 +121,10 @@ export async function getPetViewFromDb(id: string): Promise<PetView | null> {
   const baselineMv = await db.execute<{ mean_score: string | null; n: string; ever_crossed_mcid: boolean }>(
     sql`select mean_score, n, ever_crossed_mcid from rolling_baseline_mv
         where pet_id = ${id} and instrument_id = 'genpup_m'`,
+  );
+  const adherenceMv = await db.execute<{ sessions: string; adherence_ratio: string | null }>(
+    sql`select sessions, adherence_ratio from adherence_rollup_mv
+        where pet_id = ${id} order by week desc limit 1`,
   );
 
   // ── derive: identity / header ───────────────────────────────────────────────
@@ -153,6 +165,28 @@ export async function getPetViewFromDb(id: string): Promise<PetView | null> {
     ? Math.round(daysBetween(cleanRecent[0].at, cleanRecent[cleanRecent.length - 1].at))
     : 0;
   const cleanSessions = cleanRecent.filter(isCleanSession).length;
+  const vetName = plan?.prescriberName ?? "your vet";
+  const progressionNudge: ProgressionNudge = {
+    fires,
+    cleanSessions,
+    spanDays,
+    headline: `${pet.name} has had ${cleanSessions} clean rehab sessions over ${spanDays} days.`,
+    question: safe(
+      `That can be a sign they're ready for a little more. It's your vet's call — want to raise it with ${vetName}?`,
+    ),
+  };
+
+  // ── derive: exercise track (vet-plan-gated; logs only) ──────────────────────
+  const exerciseTrack = buildExerciseTrack({
+    items,
+    sessions: sessionRows,
+    petName: pet.name,
+    prescriberName: vetName,
+    nudge: progressionNudge,
+    redFlags,
+    mods,
+    adherenceMv: adherenceMv[0],
+  });
 
   // ── derive: pattern memory (time-series recall over mobility_items) ─────────
   const pattern = patternFromCheckins(checkins);
@@ -198,15 +232,7 @@ export async function getPetViewFromDb(id: string): Promise<PetView | null> {
         dow: qolDow,
         note: safe("A gentle week overall, holding steady. Worth keeping an eye on the lower days."),
       },
-      progression: {
-        fires,
-        cleanSessions,
-        spanDays,
-        headline: `${pet.name} has had ${cleanSessions} clean rehab sessions over ${spanDays} days.`,
-        question: safe(
-          `That can be a sign they're ready for a little more. It's your vet's call — want to raise it with ${plan?.prescriberName ?? "your vet"}?`,
-        ),
-      },
+      progression: progressionNudge,
       pattern,
       recovery,
       protocolLabel: "TPLO post-op",
@@ -261,10 +287,69 @@ export async function getPetViewFromDb(id: string): Promise<PetView | null> {
       windowDays: 28,
       band,
     },
+    exerciseTrack,
   };
 }
 
 // ── helpers ─────────────────────────────────────────────────────────────────────
+
+/** FITT display string + the per-session rep ceiling from sets/reps. */
+function fittFrom(sets: number | null, reps: number | null): { fitt: string; planned: number } {
+  if (sets && reps) return { fitt: `${sets} × ${reps}`, planned: sets * reps };
+  if (reps) return { fitt: `${reps} reps`, planned: reps };
+  return { fitt: "as prescribed", planned: 0 };
+}
+
+type PlanItemRow = { exerciseId: string; name: string; sets: number | null; reps: number | null; active: boolean };
+type SessionRow = { exerciseId: string; completedReps: number | null; plannedReps: number | null; tolerance: Tolerance | null; recordedAt: Date };
+
+function buildExerciseTrack(d: {
+  items: PlanItemRow[];
+  sessions: SessionRow[];
+  petName: string;
+  prescriberName: string;
+  nudge: ProgressionNudge;
+  redFlags: { label: string; guide: string | null }[];
+  mods: { title: string; detail: string | null }[];
+  adherenceMv: { sessions: string; adherence_ratio: string | null } | undefined;
+}): ExerciseTrackView {
+  const exercises = d.items.map((it) => {
+    const { fitt, planned } = fittFrom(it.sets, it.reps);
+    return { id: it.exerciseId, name: it.name, fitt, planned, active: it.active };
+  });
+
+  // adherence (this week) from the materialized view, else from raw sessions.
+  const ratio = d.adherenceMv?.adherence_ratio != null ? Number(d.adherenceMv.adherence_ratio) : null;
+  const adherencePct = ratio != null ? Math.round(ratio * 100) : 0;
+  const daysThisWeek = new Set(
+    d.sessions.filter((s) => daysBetween(NOW, s.recordedAt) < 7).map((s) => Math.floor(s.recordedAt.getTime() / DAY)),
+  ).size;
+  const adherenceDays = `${daysThisWeek} of 7 days`;
+
+  const clean = (s: SessionRow) =>
+    (s.completedReps ?? 0) >= (s.plannedReps ?? 0) && s.tolerance !== "sore" && s.tolerance !== "refused";
+  const cleanDots = d.sessions.slice(0, 6).reverse().map(clean);
+
+  // last 14 days, session count per day (capped at 3) → bar intensity
+  const history: number[] = [];
+  for (let day = 13; day >= 0; day--) {
+    const n = d.sessions.filter((s) => daysBetween(NOW, s.recordedAt) === day).length;
+    history.push(Math.min(3, n));
+  }
+
+  return {
+    gated: exercises.length === 0,
+    prescriberName: d.prescriberName,
+    exercises,
+    adherencePct,
+    adherenceDays,
+    cleanDots,
+    history,
+    nudge: d.nudge,
+    redFlags: d.redFlags.map((r) => ({ label: r.label, guide: r.guide ?? "Contact your vet now." })),
+    modifications: d.mods.map((m) => ({ title: m.title, detail: m.detail ?? "" })),
+  };
+}
 
 const MED_DETAIL: Record<string, string> = {
   Carprofen: "75 mg · morning, with food",

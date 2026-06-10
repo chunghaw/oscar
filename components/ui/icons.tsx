@@ -127,4 +127,21 @@ export const Ico = {
     )),
   plus: (p = {}) =>
     svg(p.s ?? 16, p.c ?? "currentColor", p.w ?? 2, <path d="M12 5v14M5 12h14" />),
+  minus: (p = {}) =>
+    svg(p.s ?? 16, p.c ?? "currentColor", p.w ?? 2.2, <path d="M5 12h14" />),
+  home: (p = {}) =>
+    svg(p.s ?? 16, p.c ?? "currentColor", p.w ?? 1.6, (
+      <>
+        <path d="M3 9.5 12 3l9 6.5" />
+        <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" />
+        <path d="M9 21v-6h6v6" />
+      </>
+    )),
+  alert: (p = {}) =>
+    svg(p.s ?? 16, p.c ?? "currentColor", p.w ?? 1.7, (
+      <>
+        <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+        <path d="M12 9v4M12 17h.01" />
+      </>
+    )),
 } satisfies Record<string, Icon>;

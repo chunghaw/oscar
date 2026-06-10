@@ -166,10 +166,51 @@ export interface BriefView {
   band: MobilityBand;
 }
 
-// ── the whole pet, for any of the three routes ──────────────────────────────────
+// ── exercise track ──────────────────────────────────────────────────────────────
+export interface TrackExercise {
+  id: string;
+  name: string;
+  /** FITT dose display, e.g. "3 × 5" */
+  fitt: string;
+  /** target reps for the session (sets × reps) — the stepper ceiling */
+  planned: number;
+  /** active (preferred) vs passive modality */
+  active: boolean;
+}
+
+export interface RedFlag {
+  label: string;
+  guide: string;
+}
+
+export interface HomeModification {
+  title: string;
+  detail: string;
+}
+
+export interface ExerciseTrackView {
+  /** true when there's no active vet plan — show the on-ramp, never exercises */
+  gated: boolean;
+  prescriberName: string;
+  exercises: TrackExercise[];
+  /** weekly adherence %, computed from adherence_rollup_mv */
+  adherencePct: number;
+  /** e.g. "3 of 7 days" */
+  adherenceDays: string;
+  /** last 6 sessions, true = clean (dose met + tolerance handled/a-bit-tired) */
+  cleanDots: boolean[];
+  /** last 14 days, 0 = rest else session intensity 1..3 */
+  history: number[];
+  nudge: ProgressionNudge;
+  redFlags: RedFlag[];
+  modifications: HomeModification[];
+}
+
+// ── the whole pet, for any route ────────────────────────────────────────────────
 export interface PetView {
   header: PetHeader;
   dashboard: DashboardView;
   checkin: CheckinConfig;
   brief: BriefView;
+  exerciseTrack: ExerciseTrackView;
 }
