@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Goldvale — Exercise track</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet" />
+<template id="__bundler_thumbnail">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <rect width="100" height="100" fill="#eef1ef"/>
+    <path d="M22 50h12l6-16 10 32 6-16h22" fill="none" stroke="#4f8a7d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</template>
+<style>
+  :root {
+    --cream: #eef1ef;
+    --charcoal: #20262a;
+    --gold: #d6981e;
+    --sage: #4f8a7d;
+    --danger: #c0492b;
+    --muted: #687069;
+    --muted-soft: #8a938e;
+    --card: #ffffff;
+    --radius: 18px;
+    --serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+
+    --hairline: #dde3df;
+    --hairline-soft: #e8ece9;
+    --field: #f2f5f3;
+
+    --sage-soft: rgba(79, 138, 125, 0.13);
+    --sage-ink: #3a6b60;
+    --gold-soft: rgba(214, 152, 30, 0.15);
+    --gold-ink: #8a6410;
+
+    --slate: #5b7a99;   --slate-soft: rgba(91, 122, 153, 0.12);
+    --teal:  #3f8f86;   --teal-soft:  rgba(63, 143, 134, 0.12);
+    --plum:  #7d6b96;   --plum-soft:  rgba(125, 107, 150, 0.12);
+    --clay:  #b3654a;   --clay-soft:  rgba(179, 101, 74, 0.12);   --clay-ink: #97492f;
+    --danger-soft: rgba(192, 73, 43, 0.10);
+    --neutral-soft: rgba(104, 112, 105, 0.12);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    background: radial-gradient(1100px 700px at 50% -8%, #f4f7f5 0%, #e9eeeb 60%, #e2e8e4 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    color: var(--charcoal); -webkit-font-smoothing: antialiased;
+  }
+  .gv-scroll::-webkit-scrollbar { width: 0; height: 0; }
+  .gv-scroll { scrollbar-width: none; }
+  .gv-press { transition: transform .12s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease, color .15s ease; }
+  .gv-press:active { transform: scale(0.985); }
+
+  @keyframes gv-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes gv-pop { 0% { opacity:0; transform: scale(.82);} 70%{transform:scale(1.04);} 100%{opacity:1;transform:scale(1);} }
+  @keyframes gv-sheet { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes gv-draw { to { stroke-dashoffset: 0; } }
+  .gv-rise { animation: gv-rise .42s cubic-bezier(.2,.7,.3,1) both; }
+  .gv-sheet { animation: gv-sheet .4s cubic-bezier(.2,.7,.3,1) both; }
+  @media (prefers-reduced-motion: reduce) {
+    .gv-rise, .gv-sheet { animation: none; }
+    .gv-line { stroke-dashoffset: 0 !important; }
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="ios-frame.jsx"></script>
+  <script type="text/babel" src="ExerciseTrack.jsx"></script>
+  <script type="text/babel">
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<ExerciseTrackApp />);
+  </script>
+</body>
+</html>

@@ -6,8 +6,10 @@ structure from `HANDOFF.md` — drop each folder into `design/incoming/`, or rea
 
 ```
 handoff/
+  onboarding/      → /onboarding   (first-run setup → first check-in)
   daily-checkin/   → /pets/[id]/checkin
   dashboard/       → /pets/[id]
+  exercise-track/  → /pets/[id]/exercises
   vet-brief/       → /pets/[id]/brief
 ```
 
