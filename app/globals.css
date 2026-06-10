@@ -90,9 +90,12 @@ textarea.gv-note:focus { outline: none; border-color: var(--sage) !important; ba
 }
 
 /* ── Device presentation ─────────────────────────────────────────────────────
-   Mobile-first: phones get the bare full-bleed app. On wider screens (laptops),
-   the same app is centered inside a phone frame on a soft ambient backdrop, so a
-   judge opening the link on a desktop sees a deliberate mobile app, not a column. */
+   Mobile-first: phones get the bare full-bleed app (device chrome hidden). On
+   wider screens the same app is centered inside an iPhone frame — dynamic-island
+   notch, 9:41 status bar, home indicator — so a judge on a laptop sees a real
+   mobile app, not a column. */
+.gv-island, .gv-statusbar, .gv-home { display: none; }
+
 @media (min-width: 600px) {
   .gv-stage {
     min-height: 100dvh;
@@ -104,13 +107,53 @@ textarea.gv-note:focus { outline: none; border-color: var(--sage) !important; ba
     background-attachment: fixed;
   }
   .gv-device {
+    position: relative;
     width: 412px;
     flex: 0 0 auto;
+    height: min(884px, calc(100dvh - 74px));
     background: var(--background);
     border: 9px solid #14171a;
-    border-radius: 46px;
+    border-radius: 50px;
     box-shadow: 0 30px 70px rgba(20, 30, 28, 0.28), 0 6px 18px rgba(20, 30, 28, 0.16);
     overflow: hidden;
-    min-height: calc(100dvh - 74px);
+    display: flex;
+    flex-direction: column;
+  }
+  .gv-island {
+    display: block;
+    position: absolute;
+    top: 10px; left: 50%;
+    transform: translateX(-50%);
+    width: 115px; height: 33px;
+    border-radius: 22px;
+    background: #0a0c0e;
+    z-index: 30;
+  }
+  .gv-statusbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 auto;
+    padding: 15px 28px 7px;
+    color: var(--foreground);
+    position: relative;
+    z-index: 20;
+  }
+  .gv-screen {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .gv-home {
+    display: block;
+    position: absolute;
+    bottom: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 128px; height: 5px;
+    border-radius: 100px;
+    background: rgba(20, 30, 28, 0.22);
+    z-index: 30;
+    pointer-events: none;
   }
 }

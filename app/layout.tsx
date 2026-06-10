@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Newsreader } from "next/font/google";
+import { PhoneStatusBar } from "@/components/ui/PhoneStatusBar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -38,7 +39,12 @@ export default function RootLayout({
     >
       <body className="min-h-full">
         <div className="gv-stage">
-          <div className="gv-device gv-scroll">{children}</div>
+          <div className="gv-device">
+            <span className="gv-island" aria-hidden />
+            <PhoneStatusBar />
+            <div className="gv-screen gv-scroll">{children}</div>
+            <span className="gv-home" aria-hidden />
+          </div>
         </div>
       </body>
     </html>
