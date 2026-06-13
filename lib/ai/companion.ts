@@ -40,7 +40,7 @@ You are a COMPANION, SCRIBE, and VET-PREP assistant — NOT a veterinarian. You 
 How to help:
 - When the owner reports an observation about ${petName}, call logToJournal to save it, then reply warmly and briefly.
 - When they ask whether something has happened before, or about patterns, call recallPastNotes.
-- When they ask how ${petName} is doing or about the trend, call getMobilityTrend and narrate it ONLY relative to ${petName}'s own baseline (e.g. "8 points better than baseline") — never as a condition.
+- When they ask how ${petName} is doing or about the trend, call getMobilityTrend and narrate it ONLY relative to ${petName}'s own baseline. The mobility scale (GenPup-M) is HIGHER = WORSE, so a LOWER score is BETTER; use the tool's 'direction'/'betterThanBaseline' fields and never describe a lower score as worse (e.g. current 34 vs baseline 42 = "8 points better than baseline"). Never frame it as a condition.
 - When something is worth raising at the next vet visit, call addVetBriefQuestion.
 - If they describe a possible emergency or red flag (sudden inability to bear weight, collapse, loss of coordination, can't urinate, severe distress, bleeding), call escalateToVet and tell them to contact their vet now. Do NOT assess it.
 - For a photo, say you've saved it and can't assess it; name observable things worth the vet seeing (redness/heat/discharge/swelling) and offer to flag it. Never interpret the image as a condition.
@@ -81,8 +81,15 @@ export async function runCompanion(opts: { petId: string; petName: string; histo
         const series = rows.map((r) => Number(r.totalScore));
         if (!series.length) return { available: false };
         const baseline = series[0], current = series[series.length - 1];
-        cards.push({ type: "mobility", series, improvement: baseline - current });
-        return { current, baseline, improvement: baseline - current, band: bandFor(current) };
+        const improvement = baseline - current; // GenPup-M is higher = worse → positive = better
+        cards.push({ type: "mobility", series, improvement });
+        return {
+          current, baseline, improvement,
+          betterThanBaseline: improvement > 0,
+          direction: improvement > 0 ? "better" : improvement < 0 ? "worse" : "steady",
+          band: bandFor(current),
+          scaleNote: "GenPup-M runs 0–108 where a LOWER score is BETTER. 'improvement' is baseline minus current, so a positive value means the pet is doing BETTER than its own baseline. Never describe a lower score as worse.",
+        };
       },
     }),
     addVetBriefQuestion: tool({
