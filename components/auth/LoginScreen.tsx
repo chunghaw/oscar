@@ -40,7 +40,8 @@ export function LoginScreen({ demoPetId }: { demoPetId: string }) {
   }
 
   return (
-    <main className="gv-scroll" style={{ width: "100%", maxWidth: 440, margin: "0 auto", minHeight: "100dvh", display: "flex", flexDirection: "column", justifyContent: "center", gap: 20, padding: "24px 16px" }}>
+    <main className="gv-auth-page">
+      <div className="gv-auth-center">
       <AuthHero title="Welcome back" subtitle="Pick up right where you and your companion left off." />
 
       <form onSubmit={onSubmit} style={{ padding: "0 4px", display: "flex", flexDirection: "column", gap: 16 }}>
@@ -74,6 +75,7 @@ export function LoginScreen({ demoPetId }: { demoPetId: string }) {
           {"  ·  "}
           <Link href={`/pets/${demoPetId}`} style={{ color: C.sage, fontWeight: 650, textDecoration: "none" }}>Explore the demo</Link>
         </div>
+      </div>
       </div>
     </main>
   );

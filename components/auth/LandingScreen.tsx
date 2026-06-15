@@ -17,7 +17,8 @@ export function LandingScreen({ demoPetId }: { demoPetId: string }) {
     { ic: Ico.activity, a: ACC.plan, t: "Prepare", d: "Walk into every vet visit with the full picture." },
   ];
   return (
-    <main className="gv-scroll" style={{ width: "100%", maxWidth: 440, margin: "0 auto", minHeight: "100dvh", display: "flex", flexDirection: "column", justifyContent: "center", gap: 20, padding: "24px 16px" }}>
+    <main className="gv-auth-page">
+      <div className="gv-auth-center">
       <AuthHero
         title="A calmer way to care"
         subtitle="For the senior and chronically-ill pets who need a little extra looking-after."
@@ -62,6 +63,7 @@ export function LandingScreen({ demoPetId }: { demoPetId: string }) {
         }}>
           {Ico.paw({ s: 15, c: C.sage })} Explore the live demo
         </Link>
+      </div>
       </div>
     </main>
   );

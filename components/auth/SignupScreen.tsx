@@ -42,7 +42,8 @@ export function SignupScreen() {
   }
 
   return (
-    <main className="gv-scroll" style={{ width: "100%", maxWidth: 440, margin: "0 auto", minHeight: "100dvh", display: "flex", flexDirection: "column", justifyContent: "center", gap: 20, padding: "24px 16px" }}>
+    <main className="gv-auth-page">
+      <div className="gv-auth-center">
       <AuthHero title="Set up your pet" subtitle="A calm home for everything your senior or chronically-ill companion needs." />
 
       <form onSubmit={onSubmit} style={{ padding: "0 4px", display: "flex", flexDirection: "column", gap: 16 }}>
@@ -81,6 +82,7 @@ export function SignupScreen() {
           Already have an account?{" "}
           <Link href="/login" style={{ color: C.sage, fontWeight: 650, textDecoration: "none" }}>Log in</Link>
         </div>
+      </div>
       </div>
     </main>
   );

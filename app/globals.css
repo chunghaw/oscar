@@ -161,3 +161,29 @@ textarea.gv-note:focus { outline: none; border-color: var(--sage) !important; ba
     pointer-events: none;
   }
 }
+
+/* ── Welcome / auth page shell ────────────────────────────────────────────────
+   Fills the REAL visible area on any device: the dynamic viewport on phones
+   (adapts to the browser's collapsing chrome) and the framed device screen on
+   desktop — never the whole window, which is what caused the top void + clipped
+   footer. The inner .gv-auth-center uses `margin: auto 0`, so the content sits
+   vertically centered when it fits and falls back to top-aligned + scrollable
+   when it doesn't (no flex-centering clip), across every phone resolution. */
+.gv-auth-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding: 24px 16px;
+}
+@media (min-width: 600px) {
+  .gv-auth-page { min-height: 100%; }
+}
+.gv-auth-center {
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
