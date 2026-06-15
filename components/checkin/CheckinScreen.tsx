@@ -55,7 +55,7 @@ function Header({ header, config, progress }: { header: PetHeader; config: Check
             {Ico.heart({ s: 16, c: "#fff" })}
           </span>
           <div style={{ fontSize: 12.5, lineHeight: 1.4, color: "rgba(255,255,255,0.94)" }}>
-            However today went, you&rsquo;re here for {header.name}. A few quick notes is all today needs.
+            However today went, you&rsquo;re here for {header.name}. A few quick notes are all today needs.
           </div>
         </div>
       </Hero>
@@ -115,21 +115,6 @@ function QolBlock({
         <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.4, flex: 1, minWidth: 0 }}>
           Overall sense — comfort, appetite, mood, mobility.
         </div>
-        <span
-          style={{
-            fontSize: 9.5,
-            fontWeight: 700,
-            letterSpacing: 0.6,
-            color: "#7b857f",
-            background: C.field,
-            border: `1px solid ${C.hairSoft}`,
-            padding: "3px 7px",
-            borderRadius: 999,
-            flexShrink: 0,
-          }}
-        >
-          HHHHHMM
-        </span>
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", gap: 4 }}>
         {options.map((f, i) => {

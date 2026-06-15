@@ -457,7 +457,7 @@ function buildMentions(d: {
       accentKey: "snap",
       title: `Mobility improved ${d.improvement} points`,
       body: safe(
-        `GenPup-M is ${d.current} now vs ${d.baseline} four weeks ago — past the point Goldvale flags as meaningful. Still in the "${d.band}" band.`,
+        `GenPup-M is ${d.current} now vs ${d.baseline} four weeks ago — past the point Goldvale flags as meaningful. Still in the “${d.band}” band.`,
       ),
       tag: "Trend",
     });

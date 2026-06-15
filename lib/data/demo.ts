@@ -103,7 +103,7 @@ export function buildOscarView(): PetView {
         spanDays: SPAN_DAYS,
         headline: `Oscar has had ${DEFAULT_PROGRESSION.minCleanSessions} clean rehab sessions over ${SPAN_DAYS} days.`,
         question: safe(
-          "That can be a sign she's ready for a little more. It's your vet's call — want to raise it with Dr. Okafor?",
+          "That can be a sign they're ready for a little more. It's your vet's call — want to raise it with Dr. Okafor?",
         ),
       },
       pattern,
@@ -160,7 +160,7 @@ export function buildOscarView(): PetView {
           accentKey: "snap",
           title: `Mobility improved ${improvement} points`,
           body: safe(
-            `GenPup-M is ${CURRENT} now vs ${BASELINE} four weeks ago — past the point Goldvale flags as meaningful. Still in the "${band}" band.`,
+            `GenPup-M is ${CURRENT} now vs ${BASELINE} four weeks ago — past the point Goldvale flags as meaningful. Still in the “${band}” band.`,
           ),
           tag: "Trend",
         },
@@ -221,7 +221,7 @@ export function buildOscarView(): PetView {
         spanDays: SPAN_DAYS,
         headline: `Oscar has handled this dose well for ${SPAN_DAYS} days.`,
         question: safe(
-          "That can be a sign he's ready for a little more — but it's your vet's call, never ours. Want to raise it with Dr. Okafor?",
+          "That can be a sign they're ready for a little more — but it's your vet's call. Want to raise it with Dr. Okafor?",
         ),
       },
       redFlags: [

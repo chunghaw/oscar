@@ -292,8 +292,8 @@ function StepConditions({ data, set, toggleCond }: { data: FormData; set: <K ext
 function StepPlan({ data, set, toggleEx }: { data: FormData; set: <K extends keyof FormData>(k: K, v: FormData[K]) => void; toggleEx: (id: string) => void }) {
   return (
     <div className="gv-step">
-      <div style={{ fontFamily: "var(--serif)", fontSize: 25, fontWeight: 500, letterSpacing: -0.4 }}>Your vet&rsquo;s plan</div>
-      <div style={{ fontSize: 13, color: C.muted, marginTop: 5, lineHeight: 1.45 }}>Has your vet given a rehab or exercise plan? We&rsquo;ll store it so you can follow along.</div>
+      <div style={{ fontFamily: "var(--serif)", fontSize: 25, fontWeight: 500, letterSpacing: -0.4 }}>Your vet</div>
+      <div style={{ fontSize: 13, color: C.muted, marginTop: 5, lineHeight: 1.45 }}>Their clinic, and any rehab plan they&rsquo;ve given — we&rsquo;ll store both, so you can reach them fast and follow along.</div>
 
       <div style={{ marginTop: 18, display: "flex", gap: 12 }}>
         <div style={{ flex: 1.4 }}>

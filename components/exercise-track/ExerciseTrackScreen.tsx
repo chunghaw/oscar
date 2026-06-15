@@ -143,7 +143,7 @@ function LoggedSheet({ count, name, onClose }: { count: number; name: string; on
           <div style={{ width: 64, height: 64, borderRadius: 999, margin: "0 auto 16px", background: "var(--sage-soft)", display: "flex", alignItems: "center", justifyContent: "center", animation: "gv-pop .5s var(--gv-ease) both" }}>
             {Ico.check({ s: 30, c: C.sage, w: 2.6 })}
           </div>
-          <div style={{ fontFamily: "var(--serif)", fontSize: 23, fontWeight: 500, letterSpacing: -0.4 }}>Logged — that&rsquo;s how progress shows</div>
+          <div style={{ fontFamily: "var(--serif)", fontSize: 23, fontWeight: 500, letterSpacing: -0.4 }}>Logged — that&rsquo;s how progress shows up</div>
           <div style={{ fontSize: 13.5, color: C.muted, lineHeight: 1.5, marginTop: 9, maxWidth: 280, marginLeft: "auto", marginRight: "auto" }}>
             {count} {count === 1 ? "exercise" : "exercises"} saved to {name}&rsquo;s rehab record. Every session adds to the bigger picture.
           </div>
