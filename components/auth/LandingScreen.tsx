@@ -17,13 +17,13 @@ export function LandingScreen({ demoPetId }: { demoPetId: string }) {
     { ic: Ico.activity, a: ACC.plan, t: "Prepare", d: "Walk into every vet visit with the full picture." },
   ];
   return (
-    <main className="gv-scroll" style={{ width: "100%", maxWidth: 440, margin: "0 auto", minHeight: "100dvh", display: "flex", flexDirection: "column", padding: "28px 16px 22px" }}>
+    <main className="gv-scroll" style={{ width: "100%", maxWidth: 440, margin: "0 auto", minHeight: "100dvh", display: "flex", flexDirection: "column", justifyContent: "center", gap: 20, padding: "24px 16px" }}>
       <AuthHero
         title="A calmer way to care"
         subtitle="For the senior and chronically-ill pets who need a little extra looking-after."
       />
 
-      <div style={{ padding: "22px 6px 8px", display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ padding: "0 6px", display: "flex", flexDirection: "column", gap: 15 }}>
         {rows.map((r) => (
           <div key={r.t} style={{ display: "flex", gap: 13, alignItems: "flex-start" }}>
             <div style={{ width: 38, height: 38, borderRadius: 12, flexShrink: 0, background: r.a.soft, color: r.a.c, display: "flex", alignItems: "center", justifyContent: "center" }}>{r.ic({ s: 19, c: r.a.c })}</div>
@@ -35,13 +35,11 @@ export function LandingScreen({ demoPetId }: { demoPetId: string }) {
         ))}
       </div>
 
-      <div style={{ padding: "4px 4px 0" }}>
+      <div style={{ padding: "0 4px" }}>
         <NonClinicalLine />
       </div>
 
-      <div style={{ flex: 1, minHeight: 18 }} />
-
-      <div style={{ padding: "8px 4px 4px", display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ padding: "4px 4px 0", display: "flex", flexDirection: "column", gap: 12 }}>
         <Link href="/signup" className="gv-press" style={{
           width: "100%", padding: "15px", borderRadius: 15, border: "none", cursor: "pointer", textDecoration: "none",
           background: "linear-gradient(180deg, #59978a, #437a6d)", color: "#fff", fontSize: 16, fontWeight: 700, letterSpacing: -0.2,

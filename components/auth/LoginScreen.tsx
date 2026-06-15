@@ -40,10 +40,10 @@ export function LoginScreen({ demoPetId }: { demoPetId: string }) {
   }
 
   return (
-    <main className="gv-scroll" style={{ width: "100%", maxWidth: 440, margin: "0 auto", minHeight: "100dvh", display: "flex", flexDirection: "column", padding: "28px 16px 22px" }}>
+    <main className="gv-scroll" style={{ width: "100%", maxWidth: 440, margin: "0 auto", minHeight: "100dvh", display: "flex", flexDirection: "column", justifyContent: "center", gap: 20, padding: "24px 16px" }}>
       <AuthHero title="Welcome back" subtitle="Pick up right where you and your companion left off." />
 
-      <form onSubmit={onSubmit} style={{ padding: "24px 4px 0", display: "flex", flexDirection: "column", gap: 16 }}>
+      <form onSubmit={onSubmit} style={{ padding: "0 4px", display: "flex", flexDirection: "column", gap: 16 }}>
         <div>
           <FieldLabel>Email</FieldLabel>
           <input
@@ -66,9 +66,7 @@ export function LoginScreen({ demoPetId }: { demoPetId: string }) {
         </PrimaryButton>
       </form>
 
-      <div style={{ flex: 1, minHeight: 18 }} />
-
-      <div style={{ padding: "16px 4px 0", display: "flex", flexDirection: "column", gap: 14 }}>
+      <div style={{ padding: "0 4px", display: "flex", flexDirection: "column", gap: 14 }}>
         <NonClinicalLine />
         <div style={{ textAlign: "center", fontSize: 13, color: C.muted }}>
           New here?{" "}
