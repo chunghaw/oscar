@@ -10,16 +10,18 @@
  *   • 7 clean rehab sessions over 18 days → progression nudge fires (question)
  *   • "slower rising" flagged on 3 days in the last ~2.5 weeks → pattern memory
  *   • meds Carprofen 27/28 · Gabapentin 28/28 · Omega-3 25/28
- * Embeddings are left null; backfill once Bedrock keys land.
+ * Journal + mobility vectors are embedded inline (best-effort) so semantic recall is
+ * demo-ready straight from this one script.
  */
-import { eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { getDb } from "../lib/db/client";
 import {
   owners, pets, exercisePlans, planItems, protocolInstances,
   dailyCheckins, mobilityScoreEvents, exerciseSessionEvents,
   medicationEvents, journalEntries, bcsMcsEvents,
 } from "../lib/db/schema";
-import { crossedMcid } from "../lib/domain/mobility";
+import { bandFor, crossedMcid } from "../lib/domain/mobility";
+import { embedTexts } from "../lib/ai/bedrock";
 import { DEMO_OWNER_EMAIL, OSCAR_PET_ID } from "../lib/data/ids";
 
 const NOW = new Date("2026-06-09T09:00:00Z");
@@ -119,7 +121,7 @@ async function main() {
   );
   await db.insert(medicationEvents).values(medRows);
 
-  // ── pgvector layer: journal entries (text now; embeddings backfilled later) ──
+  // ── pgvector layer: journal entries (embedded just below) ──
   await db.insert(journalEntries).values([
     { petId: OSCAR_PET_ID, recordedAt: daysAgo(18), text: "Slow to rise this morning, eased up after a short walk." },
     { petId: OSCAR_PET_ID, recordedAt: daysAgo(10), text: "Stiff getting up again — better once moving." },
@@ -132,6 +134,33 @@ async function main() {
     { petId: OSCAR_PET_ID, bcs: 5, mcs: "mild loss", recordedAt: daysAgo(30) },
     { petId: OSCAR_PET_ID, bcs: 5, mcs: "mild loss", recordedAt: daysAgo(2) },
   ]);
+
+  // ── embed the pgvector layer so semantic recall (the "days like this" kNN) runs on
+  //    real vectors. Best-effort: the relational demo still seeds if Bedrock is down,
+  //    and scripts/backfill-embeddings.ts can fill the vectors later. ──
+  try {
+    const jrows = await db.select().from(journalEntries)
+      .where(and(eq(journalEntries.petId, OSCAR_PET_ID), isNull(journalEntries.embedding)));
+    if (jrows.length) {
+      const vecs = await embedTexts(jrows.map((j) => j.text));
+      for (let i = 0; i < jrows.length; i++) {
+        await db.update(journalEntries).set({ embedding: vecs[i] }).where(eq(journalEntries.id, jrows[i].id));
+      }
+    }
+    const srows = await db.select().from(mobilityScoreEvents)
+      .where(and(eq(mobilityScoreEvents.petId, OSCAR_PET_ID), isNull(mobilityScoreEvents.embedding)));
+    if (srows.length) {
+      const texts = srows.map((s) =>
+        `GenPup-M mobility total ${Number(s.totalScore)} of 108, ${bandFor(Number(s.totalScore))} band, recorded ${s.recordedAt.toISOString().slice(0, 10)}.`);
+      const vecs = await embedTexts(texts);
+      for (let i = 0; i < srows.length; i++) {
+        await db.update(mobilityScoreEvents).set({ embedding: vecs[i] }).where(eq(mobilityScoreEvents.id, srows[i].id));
+      }
+    }
+    console.log(`✓ Embedded ${jrows.length} journal + ${srows.length} mobility vectors`);
+  } catch (e) {
+    console.warn("⚠ Embedding skipped (Bedrock unreachable) — run scripts/backfill-embeddings.ts later:", (e as Error).message);
+  }
 
   // ── analytics: refresh the materialized views so reads see the new history ──
   await db.execute(sql`REFRESH MATERIALIZED VIEW rolling_baseline_mv`);

@@ -172,7 +172,7 @@ function PatternCard({ pattern, href }: { pattern: PatternMemory; href: string }
 function RecoveryCard({ phases, protocolLabel, exercisesHref }: { phases: RecoveryPhase[]; protocolLabel: string; exercisesHref: string }) {
   return (
     <Card>
-      <SectionHead icon={Ico.cal({ s: 17, c: A.plum.c })} accent={A.plum} title="Recovery plan" hint={protocolLabel} />
+      <SectionHead icon={Ico.cal({ s: 17, c: A.plum.c })} accent={A.plum} title="Recovery timeline" hint={protocolLabel} />
       <div style={{ position: "relative", paddingLeft: 6 }}>
         {phases.map((p, i) => {
           const isLast = i === phases.length - 1;
