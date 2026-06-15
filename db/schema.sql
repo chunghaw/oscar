@@ -28,6 +28,7 @@ CREATE TABLE owners (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   email       text UNIQUE NOT NULL,
   display_name text,
+  password_hash text,                                -- bcrypt hash for email+password accounts (nullable)
   vet_clinic  text,                                  -- owner's vet (escalation destination)
   vet_phone   text,                                  -- tel: target for "contact your vet now"
   created_at  timestamptz NOT NULL DEFAULT now()

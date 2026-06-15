@@ -14,6 +14,7 @@ import { Hero, HeroStats } from "@/components/ui/Hero";
 import { Ico } from "@/components/ui/icons";
 import { A, C } from "@/components/ui/tokens";
 import { MobilityChart } from "./MobilityChart";
+import { SignOutButton } from "./SignOutButton";
 import { bandLabel } from "@/lib/data/pets";
 import type { DashboardView, PetHeader, ProgressionNudge, PatternMemory, RecoveryPhase, QolWeek } from "@/lib/data/view";
 
@@ -356,7 +357,7 @@ function VetBriefCard({ header, briefCount, href }: { header: PetHeader; briefCo
   );
 }
 
-export function DashboardScreen({ header, view }: { header: PetHeader; view: DashboardView }) {
+export function DashboardScreen({ header, view, isDemo = false }: { header: PetHeader; view: DashboardView; isDemo?: boolean }) {
   const briefHref = `/pets/${header.id}/brief`;
   const recallHref = `/pets/${header.id}/recall`;
   return (
@@ -407,6 +408,7 @@ export function DashboardScreen({ header, view }: { header: PetHeader; view: Das
         {view.recovery.length > 0 && <RecoveryCard phases={view.recovery} protocolLabel={view.protocolLabel} exercisesHref={`/pets/${header.id}/exercises`} />}
         <VetBriefCard header={header} briefCount={view.briefCount} href={briefHref} />
         <VetLine petId={header.id} />
+        {!isDemo && <SignOutButton />}
         <div style={{ height: 6 }} />
       </div>
     </main>

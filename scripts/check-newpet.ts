@@ -1,6 +1,7 @@
 /** Inspect what a freshly-onboarded pet (no history) renders — to find empty-state gaps.
  *  Creates a pet, prints the assembled view, then cleans up. Throwaway. */
 import { eq } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
 import { createPetFromOnboarding } from "../lib/data/onboarding-write";
 import { getPetViewFromDb } from "../lib/data/queries";
 import { getMediaTimeline } from "../lib/data/media";
@@ -8,11 +9,15 @@ import { getDb } from "../lib/db/client";
 import { owners, pets } from "../lib/db/schema";
 
 async function main() {
+  const db0 = getDb();
+  const [owner] = await db0.insert(owners).values({
+    email: `inspect-${randomUUID()}@goldvale.app`, displayName: "Inspect owner",
+  }).returning({ id: owners.id });
   const petId = await createPetFromOnboarding({
     name: "Luna", species: "cat", breed: "Domestic shorthair", age: "11 yr", senior: true,
     conditions: ["osteoarthritis"], template: null, onsetDate: "",
     hasPlan: "no", prescriber: "", exercises: [], meds: [{ name: "Meloxicam 0.5 mg", timing: "Morning" }],
-  });
+  }, owner.id);
   console.log("new pet:", petId);
 
   const v = await getPetViewFromDb(petId);

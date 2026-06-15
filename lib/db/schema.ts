@@ -26,6 +26,9 @@ export const owners = pgTable("owners", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
   displayName: text("display_name"),
+  // bcrypt hash for email+password accounts (nullable: the seeded demo owner and
+  // any onboarding-only owners may have no credentials). Never the plaintext.
+  passwordHash: text("password_hash"),
   // the owner's own vet clinic — the destination for the "contact your vet now"
   // escalation path. Captured (optionally) at onboarding; never used to judge.
   vetClinic: text("vet_clinic"),

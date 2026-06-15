@@ -1,17 +1,21 @@
 /** Verify the onboarding write creates a full linked pet record, then clean up. Throwaway. */
 import { eq } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
 import { createPetFromOnboarding } from "../lib/data/onboarding-write";
 import { getDb } from "../lib/db/client";
 import { owners, pets, exercisePlans, planItems, protocolInstances, medicationEvents } from "../lib/db/schema";
 
 async function main() {
   const db = getDb();
+  const [owner] = await db.insert(owners).values({
+    email: `onboarding-check-${randomUUID()}@goldvale.app`, displayName: "Onboarding check owner",
+  }).returning({ id: owners.id });
   const petId = await createPetFromOnboarding({
     name: "Test Pet", species: "dog", breed: "Beagle", age: "9 yr", senior: true,
     conditions: ["post_op", "osteoarthritis"], template: "tplo_post_op", onsetDate: "2 May 2026",
     hasPlan: "yes", prescriber: "Dr. Test", exercises: ["sit_to_stand", "weight_shift"],
     meds: [{ name: "Carprofen 75 mg", timing: "Morning" }],
-  });
+  }, owner.id);
 
   const [pet] = await db.select().from(pets).where(eq(pets.id, petId));
   const plans = await db.select().from(exercisePlans).where(eq(exercisePlans.petId, petId));

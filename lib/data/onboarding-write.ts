@@ -7,8 +7,7 @@
  * memory tags, the template is a milestone store, and the plan is saved verbatim —
  * nothing here assesses, grades, or prescribes.
  */
-import { inArray } from "drizzle-orm";
-import { randomUUID } from "node:crypto";
+import { eq, inArray } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import {
   owners, pets, protocolInstances, exercisePlans, planItems, exercises as exercisesTbl,
@@ -54,22 +53,27 @@ function toDateOrToday(input: string | undefined): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-/** Create the pet (and related records); returns the new pet id. */
-export async function createPetFromOnboarding(input: OnboardingInput): Promise<string> {
+/**
+ * Create the pet (and related records) for the signed-in owner; returns the new pet id.
+ * The owner already exists (created at sign-up) — we attribute the pet to them and, if
+ * vet-contact details were captured, fold them onto that owner row.
+ */
+export async function createPetFromOnboarding(input: OnboardingInput, ownerId: string): Promise<string> {
+  if (!ownerId) throw new Error("Onboarding requires a signed-in owner.");
   if (!input.name.trim() || (input.species !== "dog" && input.species !== "cat")) {
     throw new Error("Onboarding requires a name and species.");
   }
   const db = getDb();
 
-  const [owner] = await db.insert(owners).values({
-    email: `owner-${randomUUID()}@goldvale.app`,
-    displayName: "Goldvale owner",
-    vetClinic: input.vetClinic?.trim() || null,
-    vetPhone: input.vetPhone?.trim() || null,
-  }).returning({ id: owners.id });
+  // Fold any captured vet-contact details onto the existing owner (escalation target).
+  const vetClinic = input.vetClinic?.trim() || null;
+  const vetPhone = input.vetPhone?.trim() || null;
+  if (vetClinic || vetPhone) {
+    await db.update(owners).set({ vetClinic, vetPhone }).where(eq(owners.id, ownerId));
+  }
 
   const [pet] = await db.insert(pets).values({
-    ownerId: owner.id,
+    ownerId,
     name: input.name.trim(),
     species: input.species,
     breed: input.breed?.trim() || null,

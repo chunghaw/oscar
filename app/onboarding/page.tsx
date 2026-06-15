@@ -1,5 +1,9 @@
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 import { OnboardingScreen } from "@/components/onboarding/OnboardingScreen";
 
-export default function OnboardingPage() {
+export default async function OnboardingPage() {
+  const session = await auth();
+  if (!session?.user?.ownerId) redirect("/signup");
   return <OnboardingScreen />;
 }
