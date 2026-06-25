@@ -485,7 +485,7 @@ export function OnboardingScreen() {
     <main className="gv-scroll gv-screen-fill" style={{ width: "100%", maxWidth: 440, margin: "0 auto", display: "flex", flexDirection: "column", padding: fullBleed ? "28px 16px 22px" : "28px 16px 18px" }}>
       {top}
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>{body}</div>
-      {error && <div style={{ textAlign: "center", fontSize: 12.5, color: C.danger, paddingTop: 10 }}>{error}</div>}
+      {error && <div role="alert" style={{ textAlign: "center", fontSize: 12.5, color: C.danger, paddingTop: 10 }}>{error}</div>}
       {footer}
     </main>
   );

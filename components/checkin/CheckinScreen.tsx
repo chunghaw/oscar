@@ -117,7 +117,11 @@ function QolBlock({
           Overall sense — comfort, appetite, mood, mobility.
         </div>
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 4 }}>
+      <div
+        role="radiogroup"
+        aria-label={`How was ${name}'s day?`}
+        style={{ display: "flex", justifyContent: "space-between", gap: 4 }}
+      >
         {options.map((f, i) => {
           const on = value === i;
           return (
@@ -125,6 +129,9 @@ function QolBlock({
               key={f.key}
               className="gv-press"
               onClick={() => onPick(i)}
+              role="radio"
+              aria-checked={on}
+              aria-label={f.sub}
               style={{
                 flex: 1,
                 border: "none",
@@ -653,7 +660,7 @@ export function CheckinScreen({ header, config }: { header: PetHeader; config: C
               {saving ? "Saving…" : ready ? "Save today’s check-in" : "Tap a face to start"}
             </button>
             {error && (
-              <div style={{ fontSize: 12.5, color: C.danger, textAlign: "center", fontWeight: 600 }}>{error}</div>
+              <div role="alert" style={{ fontSize: 12.5, color: C.danger, textAlign: "center", fontWeight: 600 }}>{error}</div>
             )}
             <VetLine petId={header.id} paddingTop={4} />
             <div style={{ height: 6 }} />

@@ -174,7 +174,10 @@ function RecoveryCard({ phases, protocolLabel, exercisesHref }: { phases: Recove
   return (
     <Card>
       <SectionHead icon={Ico.cal({ s: 17, c: A.plum.c })} accent={A.plum} title="Recovery timeline" hint={protocolLabel} />
-      <div style={{ position: "relative", paddingLeft: 6 }}>
+      <ol
+        aria-label={`${protocolLabel || "Recovery"} phases`}
+        style={{ position: "relative", paddingLeft: 6, margin: 0, listStyle: "none" }}
+      >
         {phases.map((p, i) => {
           const isLast = i === phases.length - 1;
           const done = p.state === "done";
@@ -182,7 +185,11 @@ function RecoveryCard({ phases, protocolLabel, exercisesHref }: { phases: Recove
           const milestone = p.state === "milestone";
           const dot = now || done ? A.plum.c : milestone ? C.gold : C.hair;
           return (
-            <div key={i} style={{ display: "flex", gap: 13, position: "relative", paddingBottom: isLast ? 0 : 16 }}>
+            <li
+              key={i}
+              aria-current={now ? "step" : undefined}
+              style={{ display: "flex", gap: 13, position: "relative", paddingBottom: isLast ? 0 : 16 }}
+            >
               {!isLast && (
                 <div
                   style={{
@@ -254,10 +261,10 @@ function RecoveryCard({ phases, protocolLabel, exercisesHref }: { phases: Recove
                 </div>
                 <div style={{ fontSize: 12.5, color: done ? C.muted : "#4a544f", marginTop: 2, lineHeight: 1.35 }}>{p.label}</div>
               </div>
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ol>
       <Link
         href={exercisesHref}
         className="gv-press"
