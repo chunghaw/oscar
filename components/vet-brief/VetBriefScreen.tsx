@@ -249,12 +249,54 @@ function QuestionsCard({ seed }: { seed: string[] }) {
   );
 }
 
+type ShareState = { kind: "idle" } | { kind: "copied" } | { kind: "error"; message: string };
+
+function buildBriefMarkdown(header: PetHeader, brief: BriefView, included: Record<string, boolean>): string {
+  const out: string[] = [];
+  out.push(`# Vet brief — ${header.name}`);
+  out.push(`Prepared for ${header.vetName}. Window: ${brief.windowDays} days.\n`);
+  const mentions = brief.mentions.filter((m) => included[m.id]);
+  if (mentions.length) {
+    out.push("## Things to mention");
+    for (const m of mentions) out.push(`- **${m.title}** — ${m.body}`);
+    out.push("");
+  }
+  if (brief.snapshot.length) {
+    out.push("## Snapshot");
+    for (const s of brief.snapshot) out.push(`- ${s.label}: ${s.value}${s.unit}`);
+    out.push("");
+  }
+  if (brief.meds.length) {
+    out.push("## Medications");
+    for (const m of brief.meds) out.push(`- ${m.name} (${m.detail}) — ${m.adherence}`);
+    out.push("");
+  }
+  if (brief.seedQuestions.length) {
+    out.push("## Questions");
+    brief.seedQuestions.forEach((q, i) => out.push(`${i + 1}. ${q}`));
+  }
+  out.push("\n_Prepared by Oscar — non-clinical. Your vet reads the full picture._");
+  return out.join("\n");
+}
+
 export function VetBriefScreen({ header, brief }: { header: PetHeader; brief: BriefView }) {
   const [inc, setInc] = useState<Record<string, boolean>>(() =>
     brief.mentions.reduce<Record<string, boolean>>((a, m) => ({ ...a, [m.id]: true }), {}),
   );
-  const [shared, setShared] = useState(false);
+  const [share, setShare] = useState<ShareState>({ kind: "idle" });
   const includedCount = useMemo(() => Object.values(inc).filter(Boolean).length, [inc]);
+
+  async function handleShare() {
+    const text = buildBriefMarkdown(header, brief, inc);
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("Clipboard not available in this browser.");
+      await navigator.clipboard.writeText(text);
+      setShare({ kind: "copied" });
+      setTimeout(() => setShare({ kind: "idle" }), 3500);
+    } catch {
+      setShare({ kind: "error", message: "Couldn't copy automatically — select the brief in your screenshot tool, or try again." });
+    }
+  }
 
   return (
     <main className="gv-scroll" style={{ width: "100%", maxWidth: 440, margin: "0 auto", padding: "24px 16px 32px" }}>
@@ -307,36 +349,43 @@ export function VetBriefScreen({ header, brief }: { header: PetHeader; brief: Br
 
         <button
           className="gv-press"
-          onClick={() => setShared(true)}
+          onClick={handleShare}
+          aria-label="Copy brief to clipboard"
           style={{
             width: "100%",
             padding: "15px",
             borderRadius: 15,
             cursor: "pointer",
-            background: shared ? "var(--sage-soft)" : "linear-gradient(180deg, #59978a, #437a6d)",
-            color: shared ? "var(--sage-ink)" : "#fff",
+            background: share.kind === "copied" ? "var(--sage-soft)" : "linear-gradient(180deg, #59978a, #437a6d)",
+            color: share.kind === "copied" ? "var(--sage-ink)" : "#fff",
             fontSize: 15.5,
             fontWeight: 700,
             letterSpacing: -0.2,
-            boxShadow: shared ? "none" : "0 6px 16px rgba(63,123,109,0.30)",
+            boxShadow: share.kind === "copied" ? "none" : "0 6px 16px rgba(63,123,109,0.30)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             gap: 8,
             whiteSpace: "nowrap",
-            border: shared ? `1px solid ${C.sage}` : "none",
+            border: share.kind === "copied" ? `1px solid ${C.sage}` : "none",
           }}
         >
-          {shared ? (
-            <>
-              {Ico.check({ s: 17, c: "var(--sage-ink)", w: 2.6 })} Brief ready to share
-            </>
+          {share.kind === "copied" ? (
+            <>{Ico.check({ s: 17, c: "var(--sage-ink)", w: 2.6 })} Copied — paste it to your vet</>
           ) : (
-            <>
-              {Ico.share({ s: 17, c: "#fff" })} Share brief with vet
-            </>
+            <>{Ico.share({ s: 17, c: "#fff" })} Copy brief for {header.vetName}</>
           )}
         </button>
+        {share.kind === "copied" && (
+          <div role="status" aria-live="polite" style={{ fontSize: 11.5, color: "var(--sage-ink)", textAlign: "center", marginTop: -6 }}>
+            Brief copied to your clipboard.
+          </div>
+        )}
+        {share.kind === "error" && (
+          <div role="alert" style={{ fontSize: 11.5, color: C.danger, textAlign: "center", marginTop: -6, lineHeight: 1.4 }}>
+            {share.message}
+          </div>
+        )}
 
         <div style={{ fontSize: 11.5, color: C.muted, textAlign: "center", lineHeight: 1.5, padding: "2px 14px" }}>
           We prepare and remember — it doesn&rsquo;t diagnose. Your vet reads the full picture.

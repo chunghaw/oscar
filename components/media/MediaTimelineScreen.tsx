@@ -52,7 +52,18 @@ function Tile({ it, petName, mentioned, onMention, onRecall, onPlay }: {
   );
 }
 
-function RecallSheet({ caption, analogues, onClose }: { caption: string; analogues: MediaAnalogue[] | null; onClose: () => void }) {
+type RecallState =
+  | { kind: "loading" }
+  | { kind: "loaded"; analogues: MediaAnalogue[] }
+  | { kind: "error" };
+
+function RecallSheet({ caption, state, onClose, onRetry }: {
+  caption: string; state: RecallState; onClose: () => void; onRetry: () => void;
+}) {
+  const subtitle =
+    state.kind === "loaded" ? `${state.analogues.length} photos · same spot, by meaning`
+    : state.kind === "error" ? "Couldn't load similar days right now."
+    : "Finding similar days…";
   return (
     <div style={{ position: "absolute", inset: 0, zIndex: 20, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
       <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(32,38,42,0.4)" }} />
@@ -62,29 +73,56 @@ function RecallSheet({ caption, analogues, onClose }: { caption: string; analogu
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5 }}>{Ico.sparkles({ s: 14, c: C.sage })}<span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase", color: C.sage }}>Visual recall</span></div>
             <div style={{ fontFamily: "var(--serif)", fontSize: 20, fontWeight: 500, letterSpacing: -0.3 }}>{caption}, over time</div>
-            <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }}>{analogues ? `${analogues.length} photos · same spot, by meaning` : "Finding similar days…"}</div>
+            <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }} role="status" aria-live="polite">{subtitle}</div>
           </div>
           <button className="gv-press" onClick={onClose} aria-label="Close" style={{ width: 30, height: 30, borderRadius: 999, border: `1px solid ${C.hair}`, background: "#fff", color: C.muted, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{Ico.close({ s: 15, c: C.muted })}</button>
         </div>
 
-        <div className="gv-scroll" style={{ display: "flex", gap: 11, overflowX: "auto", padding: "16px 18px 8px" }}>
-          {(analogues ?? []).map((r, i) => {
-            const latest = i === (analogues!.length - 1);
-            return (
-              <div key={r.id} style={{ flexShrink: 0, width: 116 }}>
-                <div style={{ position: "relative", borderRadius: 13, overflow: "hidden", border: latest ? `2px solid ${C.sage}` : `1px solid ${C.hairSoft}` }}>
-                  <img src={r.url} alt={r.dateLabel} style={{ width: "100%", height: 116, objectFit: "cover", display: "block" }} />
-                  {latest && <div style={{ position: "absolute", top: 6, left: 6, background: C.sage, color: "#fff", fontSize: 9.5, fontWeight: 700, padding: "2px 7px", borderRadius: 999 }}>Latest</div>}
+        {state.kind === "loading" && (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 60px" }} aria-label="Loading similar days">
+            {[0, 1, 2].map((i) => (
+              <span key={i} style={{ width: 7, height: 7, margin: "0 4px", borderRadius: 999, background: C.sage, display: "block", animation: `gv-dot 1.2s ${i * 0.18}s infinite ease-in-out` }} />
+            ))}
+          </div>
+        )}
+
+        {state.kind === "error" && (
+          <div role="alert" style={{ margin: "16px 18px 0", padding: "14px 14px", borderRadius: 13, border: `1px solid ${C.danger}33`, background: "var(--danger-soft)", display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, color: C.danger }}>
+              {Ico.alert({ s: 15, c: C.danger })}
+              <span style={{ fontSize: 13, fontWeight: 700 }}>Couldn&rsquo;t reach the recall service</span>
+            </div>
+            <div style={{ fontSize: 12, color: "#6a4a44", lineHeight: 1.4 }}>The pgvector lookup didn&rsquo;t come back — it&rsquo;s usually a transient hiccup.</div>
+            <button
+              className="gv-press"
+              onClick={onRetry}
+              aria-label="Retry similar days"
+              style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 13px", borderRadius: 999, border: `1px solid ${C.sage}`, background: "#fff", color: "var(--sage-ink)", cursor: "pointer", fontSize: 12.5, fontWeight: 700 }}
+            >
+              {Ico.rotate({ s: 13, c: "var(--sage-ink)" })} <span>Retry</span>
+            </button>
+          </div>
+        )}
+
+        {state.kind === "loaded" && (
+          <div className="gv-scroll" style={{ display: "flex", gap: 11, overflowX: "auto", padding: "16px 18px 8px" }}>
+            {state.analogues.map((r, i) => {
+              const latest = i === state.analogues.length - 1;
+              return (
+                <div key={r.id} style={{ flexShrink: 0, width: 116 }}>
+                  <div style={{ position: "relative", borderRadius: 13, overflow: "hidden", border: latest ? `2px solid ${C.sage}` : `1px solid ${C.hairSoft}` }}>
+                    <img src={r.url} alt={r.dateLabel} style={{ width: "100%", height: 116, objectFit: "cover", display: "block" }} />
+                    {latest && <div style={{ position: "absolute", top: 6, left: 6, background: C.sage, color: "#fff", fontSize: 9.5, fontWeight: 700, padding: "2px 7px", borderRadius: 999 }}>Latest</div>}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginTop: 6, padding: "0 2px" }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: C.sage, fontVariantNumeric: "tabular-nums" }}>{Math.round(r.similarity * 100)}%</span>
+                    <span style={{ fontSize: 10.5, color: C.muted, fontVariantNumeric: "tabular-nums" }}>{r.dateLabel}</span>
+                  </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginTop: 6, padding: "0 2px" }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: C.sage, fontVariantNumeric: "tabular-nums" }}>{Math.round(r.similarity * 100)}%</span>
-                  <span style={{ fontSize: 10.5, color: C.muted, fontVariantNumeric: "tabular-nums" }}>{r.dateLabel}</span>
-                </div>
-              </div>
-            );
-          })}
-          {!analogues && <div style={{ padding: "40px 60px", color: C.muted, fontSize: 13 }}>Finding similar days…</div>}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         <div style={{ margin: "8px 18px 0", display: "flex", gap: 9, alignItems: "flex-start", background: C.field, border: `1px solid ${C.hairSoft}`, borderRadius: 13, padding: "11px 13px" }}>
           <span style={{ color: C.sage, flexShrink: 0, marginTop: 1 }}>{Ico.shield({ s: 15, c: C.sage })}</span>
@@ -117,7 +155,7 @@ export function MediaTimelineScreen({ petId, petName, petPhoto, view }: {
   const [mentions, setMentions] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(view.items.map((i) => [i.id, i.mentionAtVet])),
   );
-  const [recall, setRecall] = useState<{ caption: string; analogues: MediaAnalogue[] | null } | null>(null);
+  const [recall, setRecall] = useState<{ caption: string; mediaId: string; state: RecallState } | null>(null);
   const [activeVideo, setActiveVideo] = useState<MediaItemView | null>(null);
 
   const groups = useMemo(() => {
@@ -138,14 +176,22 @@ export function MediaTimelineScreen({ petId, petName, petPhoto, view }: {
     try { await toggleMention({ mediaId: it.id, petId, value }); } catch { setMentions((m) => ({ ...m, [it.id]: !value })); }
   }
 
-  async function onRecall(it: MediaItemView) {
-    setRecall({ caption: (it.caption ?? "This").replace(/\s*\(.*\)\s*$/, ""), analogues: null });
+  function captionFor(it: { caption?: string | null }): string {
+    return (it.caption ?? "This").replace(/\s*\(.*\)\s*$/, "");
+  }
+
+  async function fetchRecall(caption: string, mediaId: string) {
+    setRecall({ caption, mediaId, state: { kind: "loading" } });
     try {
-      const analogues = await loadSimilar({ petId, mediaId: it.id });
-      setRecall({ caption: (it.caption ?? "This").replace(/\s*\(.*\)\s*$/, ""), analogues });
+      const analogues = await loadSimilar({ petId, mediaId });
+      setRecall({ caption, mediaId, state: { kind: "loaded", analogues } });
     } catch {
-      setRecall(null);
+      setRecall({ caption, mediaId, state: { kind: "error" } });
     }
+  }
+
+  async function onRecall(it: MediaItemView) {
+    await fetchRecall(captionFor(it), it.id);
   }
 
   return (
@@ -165,7 +211,11 @@ export function MediaTimelineScreen({ petId, petName, petPhoto, view }: {
 
       <div className="gv-scroll" style={{ flex: 1, overflowY: "auto", padding: "14px 14px 8px" }}>
         {mentionCount > 0 && (
-          <div style={{ display: "flex", alignItems: "center", gap: 9, background: "var(--gold-soft)", border: "1px solid rgba(214,152,30,0.32)", borderRadius: 14, padding: "10px 13px", marginBottom: 14 }}>
+          <div
+            role="status"
+            aria-live="polite"
+            style={{ display: "flex", alignItems: "center", gap: 9, background: "var(--gold-soft)", border: "1px solid rgba(214,152,30,0.32)", borderRadius: 14, padding: "10px 13px", marginBottom: 14 }}
+          >
             <span style={{ color: "#8a6410", flexShrink: 0 }}>{Ico.flag({ s: 15, c: "#8a6410" })}</span>
             <span style={{ flex: 1, fontSize: 12.5, color: "#6a5520", fontWeight: 600 }}>{mentionCount} flagged for {petName}&rsquo;s next vet visit</span>
             {Ico.chevR({ s: 15, c: "#8a6410" })}
@@ -197,7 +247,14 @@ export function MediaTimelineScreen({ petId, petName, petPhoto, view }: {
         </div>
       </div>
 
-      {recall && <RecallSheet caption={recall.caption} analogues={recall.analogues} onClose={() => setRecall(null)} />}
+      {recall && (
+        <RecallSheet
+          caption={recall.caption}
+          state={recall.state}
+          onClose={() => setRecall(null)}
+          onRetry={() => fetchRecall(recall.caption, recall.mediaId)}
+        />
+      )}
       {activeVideo && <VideoLightbox item={activeVideo} onClose={() => setActiveVideo(null)} />}
     </main>
   );
