@@ -11,9 +11,9 @@
       "Bash(npm *)", "Bash(npx *)", "Bash(node *)",
       "Bash(git status *)", "Bash(git diff *)", "Bash(git add *)", "Bash(git commit *)",
       "Bash(git log *)", "Bash(git branch *)", "Bash(git switch *)", "Bash(git checkout *)",
-      "Read(//c/Users/EdmundTan/projects/goldvale/**)",
-      "Write(//c/Users/EdmundTan/projects/goldvale/**)",
-      "Edit(//c/Users/EdmundTan/projects/goldvale/**)",
+      "Read(//c/Users/EdmundTan/projects/oscar/**)",
+      "Write(//c/Users/EdmundTan/projects/oscar/**)",
+      "Edit(//c/Users/EdmundTan/projects/oscar/**)",
       "WebFetch", "WebSearch",
       "mcp__Postgres__*", "mcp__playwright__*"
     ]

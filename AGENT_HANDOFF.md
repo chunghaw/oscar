@@ -59,7 +59,7 @@ Six features (full detail in `docs/proposals/H0_GOLDVALE_BRIEF.html`): ① mobil
 
 ## 6. Current build state (✅ done + tested)
 
-Repo: **github.com/chunghaw/goldvale**, local `C:\Users\EdmundTan\projects\goldvale`, branch `main`. `tsc --noEmit` clean, **39 vitest tests pass**, `npm run lint` + `next build` green. `handoff/` + `design/` are eslint-ignored (raw design mocks).
+Repo: **github.com/chunghaw/oscar**, local `C:\Users\EdmundTan\projects\oscar`, branch `main`. `tsc --noEmit` clean, **39 vitest tests pass**, `npm run lint` + `next build` green. `handoff/` + `design/` are eslint-ignored (raw design mocks).
 
 **The product is feature-complete and demo-ready.** Entry is now a **landing page** (`/`): *Set up your own pet · Log in · Explore the live demo (Oscar)*. Real **email+password accounts** (signup → your own pet; the demo pet stays public). Screens: landing, login, signup, onboarding (multi-step, creates a real pet under your account), dashboard, daily check-in, companion AI chat (Bedrock + tools, multimodal photo-in-chat), pgvector **text recall**, media library with **image visual-recall** (kNN over Titan image embeddings) + **playable video clips**, vet brief, exercise track, and a real **vet-contact escalation** screen. Every pet sub-page has a back-to-dashboard control; the whole app is frame/resolution-robust (`.gv-screen-fill` / `.gv-auth-page`).
 
